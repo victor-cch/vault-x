@@ -1,4 +1,4 @@
-# vault-x
+# Vault X (vault-x)
 
 ITSM / observability consulting workbench — an Obsidian vault uniting CSDM v5 reference, CCH current-state reality, Dynatrace integration patterns, and Dynatrace deployed-reality snapshots.
 
