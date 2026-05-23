@@ -46,8 +46,12 @@ Obsidian doesn't natively render `.xlsx`. Two practical approaches:
 30-dynatrace-ref/      ← Dynatrace integration patterns and DQL reference
 40-dynatrace-cch/      ← CCH-specific deployed Dynatrace state
 50-mappings/           ← The web: how the pillars connect
+60-projects/           ← Engagement-bounded work (integrations, transformations)
+70-processes/          ← ITSM process designs (Incident, Problem, Change, CM, …)
 90-meta/               ← Templates, conventions, plugin notes
 ```
+
+The 10–40 pillars are *reference layers* (what is / what should be). 50 is the cross-pillar web. 60 and 70 are *activity layers* — episodic engagement work and continuous process discipline respectively — which use the reference pillars as inputs and link out to them.
 
 Each pillar has its own README describing what lives there.
 
