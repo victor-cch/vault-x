@@ -1,4 +1,4 @@
-# platform-x
+# vault-x
 
 ITSM / observability consulting workbench — an Obsidian vault uniting CSDM v5 reference, CCH current-state reality, Dynatrace integration patterns, and Dynatrace deployed-reality snapshots.
 
@@ -57,4 +57,4 @@ Standard Git workflow — clone on each machine, `git pull` before working, `git
 
 ## Provenance
 
-Originally seeded from [platform-z](https://github.com/NuvelOR/platform-z) — that repo remains as historical reference during the transition and is retired once platform-x is mature.
+Originally seeded from [platform-z](https://github.com/NuvelOR/platform-z) — that repo remains as historical reference during the transition and is retired once vault-x is mature.
