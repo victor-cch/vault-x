@@ -1,0 +1,12 @@
+# Obsidian per-machine state
+.obsidian/workspace
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+.obsidian/plugins/*/data.json
+
+# Obsidian trash
+.trash/
+
+# macOS
+.DS_Store
