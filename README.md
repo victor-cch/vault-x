@@ -57,4 +57,8 @@ Standard Git workflow — clone on each machine, `git pull` before working, `git
 
 ## Provenance
 
-Originally seeded from [platform-z](https://github.com/NuvelOR/platform-z) — that repo remains as historical reference during the transition and is retired once vault-x is mature.
+Originally seeded from the prior `platform-z` vault — that repo remains as historical reference during the transition and is retired once vault-x is mature.
+
+---
+
+*Ideation by Feodor Venetsianov. Fruition by Claude and Victor Andreev.*
