@@ -61,7 +61,7 @@ Standard Git workflow — clone on each machine, `git pull` before working, `git
 
 ## Provenance
 
-Originally seeded from the prior `platform-z` vault — that repo remains as historical reference during the transition and is retired once vault-x is mature.
+Originally seeded from the prior `platform-z` repo, developed by Victor Andreev — retired with honours after becoming the bedrock of vault-x.
 
 ---
 
