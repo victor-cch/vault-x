@@ -5,6 +5,11 @@
 .obsidian/cache
 .obsidian/plugins/*/data.json
 
+# Obsidian plugin code — re-downloaded per-machine from community-plugins.json
+.obsidian/plugins/*/main.js
+.obsidian/plugins/*/styles.css
+.obsidian/plugins/*/manifest.json
+
 # Obsidian trash
 .trash/
 
