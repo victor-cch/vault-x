@@ -24,11 +24,12 @@ SERVICE DELIVERY      │            Service Instance             │
                       ┌─────────────┴───────────────────────────┐
 SERVICE DELIVERY      │  Tech Mgmt Service  ─publishes→  TSO    │
                       │       (cmdb_ci_service_technical)       │
-                      └──────────┬──────────────────────────────┘
-                                 │  Depends on :: Used by
-                                 │  (parent TSO → child TSO; L2→L3→L4)
-                                 ▼
-                              TSO (next level)
+                      └─────────────────────────────────────────┘
+
+  (CSDM 5 model is **flat siblings**: one TMS → many TSOs, each TSO
+   stratified by location/environment/SLA/support group. TSO→TSO
+   chaining is not part of canon — see "Non-canonical CCH patterns"
+   below.)
 
   ── parallel design-side chain ───────────────────────────────────
                       ┌─────────────────────────────────────────┐
@@ -59,11 +60,11 @@ Two relationship types matter most. **Choose deliberately:**
 | **`Uses :: Used by`** | Capability consumption; shared services; partial failure scenarios | The user can survive degraded provider performance |
 | **`Provided by`** | Capability ↔ service / application | Design-time, not run-time |
 
-CSDM 4 used `Consumes / Consumed by` between Business Application and Service Instance. **CSDM 5 changed this to `Uses / Used by`**.
+CSDM 4 used `Consumes / Consumed by` between Business Application and Service Instance. **CSDM 5 changed this to `Uses / Used by`** per the White Paper (Figure 16). Note that ServiceNow's own **CSDM Data Model Examples** deck (Asset 0003134, May 2025) still uses `Consumes` in every implementation diagram — known documentation drift within the same release. The White Paper is authoritative.
 
 ## The full relationship table (CSDM 5 spec)
 
-From **CSDM Data Model Examples** (May 2025, Asset 0003134):
+From the **CSDM 5 White Paper** (Lemm, Koeten — Figure 16 "CSDM 5 Configuration Item relationships"), reconciled with **CSDM Data Model Examples** (May 2025, Asset 0003134) where the two agree. Where they disagree, the **White Paper wins** (it is prescriptive; Examples is illustrative and contains CSDM 4 carryover — notably the BA→SI relationship verb, which Examples still labels `Consumes`).
 
 | From (parent) | Relationship | To (child) |
 |---|---|---|
@@ -72,14 +73,14 @@ From **CSDM Data Model Examples** (May 2025, Asset 0003134):
 | Business Application | Uses | Information Object |
 | Business Application | uses reference | Business Application *(self-ref)* |
 | Business Application | Contains | SDLC Component |
-| Business Application | Contains | Service Instance |
+| Business Application | **Uses** | Service Instance (Application Service) |
 | SDLC Component | Consumes | Service Instance |
 | Service Instance | Depends on / sends Data to | Service Instance |
 | Service Instance | Depends on | Service Instance |
 | Application | Runs on | Infrastructure CIs |
 | Technology Mgmt Service | uses reference attribute | Technology Mgmt Service Offering (TSO) |
 | **TSO** | **Contains** | **Service Instance** |
-| **TSO** | **Contains** | **Dynamic CI Group** |
+| **TSO** | **Contains** | **Dynamic CI Group** *(also exposed in Service Builder UI as the "Application services I contain" reference field on `service_offering` — same semantic, two surface representations)* |
 | Dynamic CI Group | Uses related list | Infrastructure CIs |
 | Service Portfolio | uses reference attribute | Business Service |
 | Business Service | uses reference attribute | Business Service Offering (BSO) |
@@ -125,7 +126,7 @@ If your data shows otherwise, the relationships were inverted at creation time.
 |---|---|---|---|
 | BSO → SI | `Depends on :: Used by` | 870 | ✅ Run maturity |
 | TSO → SI | `Contains :: Contained by` | 395 | ✅ Walk maturity, growing |
-| TSO → TSO | `Depends on :: Used by` (L2→L3→L4) | 647 | ⚠️ Mixed quality — includes OT BS→SO and orphans |
+| TSO → TSO | `Depends on :: Used by` (L2→L3→L4) | 647 | ⚠️ **CCH-specific pattern, not in CSDM 5 canon** — see "Non-canonical CCH patterns" below; full detail to move to `20-cch/csdm-evidence/` in Phase 3 |
 | TSO → DCG | `Contains :: Contained by` | 7 | ❌ CI-first path largely untapped |
 | Calculated App Service → PG | `Contains :: Contained by` | 456 | ✅ Dynatrace discovery output |
 
@@ -137,11 +138,26 @@ The most common chain failures and what they break:
 |---|---|
 | BSO → SI | BSO incident path can't resolve dependent CI; default routing fails |
 | TSO → SI | Incident escalation can't identify which TSO to escalate to |
-| TSO → TSO (L2→L3→L4) | Multi-level escalation can't progress; everything hits L2 forever |
+| TSO → TSO (L2→L3→L4) *(CCH-specific, not CSDM 5 canon)* | Multi-level escalation can't progress; everything hits L2 forever |
 | TSO → DCG | CI-first path doesn't work; agent-selected CIs orphan from any TSO |
 | CI → SI (`svc_ci_assoc`) | CI selection on incident form doesn't auto-suggest BSO/TSO |
 | BSO has no `support_group` | Default incident assignment goes to "Service Desk" fallback |
 | BSO has no `business_criticality` | Urgency derivation fails; Priority is incorrect |
+
+## Non-canonical CCH patterns
+
+These appear in CCH's `cmdb_rel_ci` but are **not prescribed by CSDM 5**. They are pragmatic implementation choices, not framework deviations to be defended as if canonical. Full detail (record counts, dated observations, rationale) moves to `20-cch/csdm-evidence/` in Phase 3 of the migration.
+
+### TSO → TSO chain via `Depends on :: Used by` (L2 → L3 → L4)
+
+- **CCH evidence**: 647 records (April 2026 verification)
+- **What CCH does**: chains TSOs to model multi-level technical-support escalation (L2 front-line → L3 backend → L4 vendor).
+- **What CSDM 5 says**: nothing. The White Paper Walk stage describes TSOs as **siblings** under one TMS, stratified by location/environment/SLA/support group — not as a hierarchy. No TSO→TSO relationship appears in Figure 16 or in any of the implementation diagrams in the Examples deck (SAP, EPIC, O365, Dynamics, Salesforce all show flat TSOs).
+- **Canonical alternatives** for multi-level escalation:
+  - Multiple **TMS** entities at different tiers (front-line TMS, backend TMS, vendor TMS), each with their own TSOs
+  - **Underlying Service Instance dependencies** (`SI → Depends on → SI`) carrying the technical impact chain
+  - Escalation logic in the **incident process**, not in the CMDB topology
+- **Should CCH refactor?** Open question. The 647 records work today; refactoring is non-trivial. Worth flagging for the next CSDM maturity review rather than acting on reflex.
 
 ## Related notes
 

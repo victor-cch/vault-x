@@ -31,8 +31,8 @@ A TMS is single-level, not hierarchical. It is an operational CI (`cmdb_ci_servi
 | **TMS** | Reference (`Published as`) | **TSO** (`service_offering`) | One TMS publishes one or more TSOs |
 | **TSO** | **Contains :: Contained by** | Service Instance | **TSO is the parent** — confirmed by CCH `cmdb_rel_ci` evidence |
 | TSO | Contains :: Contained by | Dynamic CI Group | For CI-first incident path |
-| TSO (L2) | Depends on :: Used by | TSO (L3) | Multi-level technical escalation |
-| TSO (L3) | Depends on :: Used by | TSO (L4) | Continues escalation chain |
+| TSO (L2) | Depends on :: Used by | TSO (L3) | **CCH-specific pattern, not CSDM 5 canon.** Canonical model is flat sibling TSOs under one TMS. See [csdm-v5-relationship-chain](../csdm-v5-relationship-chain.md#non-canonical-cch-patterns) |
+| TSO (L3) | Depends on :: Used by | TSO (L4) | Same — CCH escalation chain, not canonical |
 | TMS | Reference (`Is part of`) | Service Portfolio | Cross-domain |
 
 > **Relationship direction is non-obvious here.** TSO is the **parent** in `Contains :: Contained by` with Service Instance. The original CCH HLD had this reversed and produced zero query results in prod. CCHIncidentUtils name matching is the workaround.
@@ -53,7 +53,7 @@ Define once at the TSO; cascades to all CIs the TSO contains via its Dynamic CI 
 - **361** TMS records.
 - TSO records (Service Offerings with `service_classification = Technical Service`): **735** of the 2,029 total `service_offering` rows.
 - 395 `TSO → SI (Contains :: Contained by)` relationships.
-- 647 `TSO → TSO (Depends on :: Used by)` relationships — covers L2 → L3 → L4 chain (mixed with OT BS→SO and orphans).
+- 647 `TSO → TSO (Depends on :: Used by)` relationships — covers L2 → L3 → L4 chain (mixed with OT BS→SO and orphans). **Note: this TSO→TSO pattern is CCH-specific and not in CSDM 5 canon** — see [csdm-v5-relationship-chain](../csdm-v5-relationship-chain.md#non-canonical-cch-patterns).
 - 7 `TSO → Dynamic CI Group` relationships (very low — CI-first path largely untapped).
 
 ## Notes / decisions
