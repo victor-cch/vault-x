@@ -10,12 +10,12 @@ Canonical PDFs cited throughout `10-csdm/`. Stored in-vault so:
 
 Bump the **Last verified** date whenever you cross-check against the current ServiceNow CSDM portal. Cadence: **quarterly, or at each ServiceNow major release** (Yokohama → Zurich → next).
 
-| File | Source | Version / Date | Last verified |
-|---|---|---|---|
-| `csdm-5-white-paper.pdf` | ServiceNow — Lemm, Koeten | CSDM 5 (current as of May 2025) | 2026-05-24 |
-| `csdm-data-model-examples.pdf` | ServiceNow — Asset 0003134 | May 2025 | 2026-05-24 |
-| `incident-mgmt-csdm-leading-practice-v3.pdf` | ServiceNow — Leading Practice Guide | v3 (© 2023) | 2026-05-24 |
-| `lab-03-dynamic-ci-groups-yokohama.pdf` | ServiceNow — Yokohama lab | Final v3 | 2026-05-24 |
+| File                                         | Source                              | Version / Date                  | Last verified |
+| -------------------------------------------- | ----------------------------------- | ------------------------------- | ------------- |
+| `csdm-5-white-paper.pdf`                     | ServiceNow — Lemm, Koeten           | CSDM 5 (current as of May 2025) | 2026-05-24    |
+| `csdm-data-model-examples.pdf`               | ServiceNow — Asset 0003134          | May 2025                        | 2026-05-24    |
+| `incident-mgmt-csdm-leading-practice-v3.pdf` | ServiceNow — Leading Practice Guide | v3 (© 2023)                     | 2026-05-24    |
+| `lab-03-dynamic-ci-groups-yokohama.pdf`      | ServiceNow — Yokohama lab           | Final v3                        | 2026-05-24    |
 
 ## Where to check for updates
 
@@ -26,7 +26,7 @@ Bump the **Last verified** date whenever you cross-check against the current Ser
 
 ## Licensing note
 
-These are ServiceNow vendor documents distributed to customers and partners. The vault is private (NuvelOR + future CCH mirror), and use is internal-reference only — no public redistribution, no extraction-and-republishing.
+These are ServiceNow vendor documents distributed to customers and partners. The vault is private, and use is internal-reference only — no public redistribution, no extraction-and-republishing.
 
 ## Originals + what's deliberately excluded
 

@@ -60,11 +60,11 @@ Two relationship types matter most. **Choose deliberately:**
 | **`Uses :: Used by`** | Capability consumption; shared services; partial failure scenarios | The user can survive degraded provider performance |
 | **`Provided by`** | Capability ↔ service / application | Design-time, not run-time |
 
-CSDM 4 used `Consumes / Consumed by` between Business Application and Service Instance. **CSDM 5 changed this to `Uses / Used by`** per the White Paper (Figure 16). Note that ServiceNow's own **CSDM Data Model Examples** deck (Asset 0003134, May 2025) still uses `Consumes` in every implementation diagram — known documentation drift within the same release. The White Paper is authoritative.
+CSDM 4 used `Consumes / Consumed by` between Business Application and Service Instance. **CSDM 5 changed this to `Uses / Used by`** per the [White Paper](source/csdm-5-white-paper.pdf) (Figure 16, page 48). Note that ServiceNow's own [CSDM Data Model Examples](source/csdm-data-model-examples.pdf) deck (Asset 0003134, May 2025) still uses `Consumes` in every implementation diagram — known documentation drift within the same release. The White Paper is authoritative.
 
 ## The full relationship table (CSDM 5 spec)
 
-From the **CSDM 5 White Paper** (Lemm, Koeten — Figure 16 "CSDM 5 Configuration Item relationships"), reconciled with **CSDM Data Model Examples** (May 2025, Asset 0003134) where the two agree. Where they disagree, the **White Paper wins** (it is prescriptive; Examples is illustrative and contains CSDM 4 carryover — notably the BA→SI relationship verb, which Examples still labels `Consumes`).
+From the [CSDM 5 White Paper](source/csdm-5-white-paper.pdf) (Lemm, Koeten — Figure 16 "CSDM 5 Configuration Item relationships", page 48), reconciled with [CSDM Data Model Examples](source/csdm-data-model-examples.pdf) (May 2025, Asset 0003134) where the two agree. Where they disagree, the **White Paper wins** (it is prescriptive; Examples is illustrative and contains CSDM 4 carryover — notably the BA→SI relationship verb, which Examples still labels `Consumes`).
 
 | From (parent) | Relationship | To (child) |
 |---|---|---|
@@ -152,7 +152,7 @@ These appear in CCH's `cmdb_rel_ci` but are **not prescribed by CSDM 5**. They a
 
 - **CCH evidence**: 647 records (April 2026 verification)
 - **What CCH does**: chains TSOs to model multi-level technical-support escalation (L2 front-line → L3 backend → L4 vendor).
-- **What CSDM 5 says**: nothing. The White Paper Walk stage describes TSOs as **siblings** under one TMS, stratified by location/environment/SLA/support group — not as a hierarchy. No TSO→TSO relationship appears in Figure 16 or in any of the implementation diagrams in the Examples deck (SAP, EPIC, O365, Dynamics, Salesforce all show flat TSOs).
+- **What CSDM 5 says**: nothing. The [White Paper](source/csdm-5-white-paper.pdf) Walk stage (page 54) describes TSOs as **siblings** under one TMS, stratified by location/environment/SLA/support group — not as a hierarchy. No TSO→TSO relationship appears in Figure 16 or in any of the implementation diagrams in the [Examples deck](source/csdm-data-model-examples.pdf) (SAP, EPIC, O365, Dynamics, Salesforce all show flat TSOs).
 - **Canonical alternatives** for multi-level escalation:
   - Multiple **TMS** entities at different tiers (front-line TMS, backend TMS, vendor TMS), each with their own TSOs
   - **Underlying Service Instance dependencies** (`SI → Depends on → SI`) carrying the technical impact chain
