@@ -48,19 +48,19 @@ The **provider's view of running services**. This is the domain that ITSM proces
 
 ## Key v5 relationships
 
-| From | Relationship | To | Notes |
-|---|---|---|---|
-| BSO | Depends on :: Used by | Service Instance | The consumer ↔ delivery bridge — see [service-consumption](service-consumption.md) |
-| TSO | **Contains :: Contained by** | Service Instance | TSO is the **parent**; SI is the **child** |
-| TSO | Contains :: Contained by | Dynamic CI Group | For the CI-first incident path |
-| TSO (L2) | Depends on :: Used by | TSO (L3) | Multi-level technical escalation |
-| TSO (L3) | Depends on :: Used by | TSO (L4) | Continues the escalation chain |
-| TMS | Reference (`Published as`) | TSO | TMS publishes one or more TSOs |
-| Service Instance | Depends on :: Used by | Service Instance | Inter-service dependencies |
-| Service Instance | Depends on :: Used by | Infrastructure CIs | Runs on |
-| Application | Runs on | Infrastructure CIs | Discovery-created |
-| Business Application | Uses :: Used by | Service Instance | From Design & Planning |
-| CI | associated with (`svc_ci_assoc`) | Service Instance | Membership; NOT a `cmdb_rel_ci` row |
+| From                 | Relationship                     | To                 | Notes                                                                              |
+| -------------------- | -------------------------------- | ------------------ | ---------------------------------------------------------------------------------- |
+| BSO                  | Depends on :: Used by            | Service Instance   | The consumer ↔ delivery bridge — see [service-consumption](service-consumption.md) |
+| TSO                  | **Contains :: Contained by**     | Service Instance   | TSO is the **parent**; SI is the **child**                                         |
+| TSO                  | Contains :: Contained by         | Dynamic CI Group   | For the CI-first incident path                                                     |
+| TSO (L2)             | Depends on :: Used by            | TSO (L3)           | **CCH-specific, not CSDM 5 canon** — see [csdm-v5-relationship-chain](csdm-v5-relationship-chain.md#non-canonical-cch-patterns) |
+| TSO (L3)             | Depends on :: Used by            | TSO (L4)           | Same — CCH escalation chain, not canonical                                         |
+| TMS                  | Reference (`Published as`)       | TSO                | TMS publishes one or more TSOs                                                     |
+| Service Instance     | Depends on :: Used by            | Service Instance   | Inter-service dependencies                                                         |
+| Service Instance     | Depends on :: Used by            | Infrastructure CIs | Runs on                                                                            |
+| Application          | Runs on                          | Infrastructure CIs | Discovery-created                                                                  |
+| Business Application | Uses :: Used by                  | Service Instance   | From Design & Planning                                                             |
+| CI                   | associated with (`svc_ci_assoc`) | Service Instance   | Membership; NOT a `cmdb_rel_ci` row                                                |
 
 > **Relationship trap**: TSO → Service Instance is `Contains :: Contained by` (TSO is parent). Some older CCH documentation got this reversed and produced zero query results in prod. Verify direction every time.
 
