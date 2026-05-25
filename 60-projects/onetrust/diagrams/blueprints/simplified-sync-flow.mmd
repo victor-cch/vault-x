@@ -1,0 +1,21 @@
+sequenceDiagram
+    participant SN as ServiceNow
+    participant OT as OneTrust
+
+    Note over SN,OT: Setup (one-time)
+    OT->>OT: Configure Asset Discovery Wizard<br>(connection, source tables, mapping, schedule)
+    OT->>SN: Initial bulk pull: GET cmdb_ci_business_app
+    SN-->>OT: Business Applications (initial set)
+    OT->>OT: Create Assets
+
+    Note over SN,OT: Part 1 — Ongoing Asset Sync (daily, REST)
+    OT->>SN: Scheduled GET cmdb_ci_business_app (changes since last run)
+    SN-->>OT: New / updated Business Applications
+    OT->>OT: Create / update Assets
+
+    Note over SN,OT: Privacy team works in OneTrust
+    OT->>OT: Classify assets (CSPP-aligned)
+
+    Note over SN,OT: Part 2 — Classification Pushback (event-driven or daily)
+    OT->>SN: REST PATCH cmdb_ci_business_app.data_classification
+    Note right of SN: Single OOTB field update

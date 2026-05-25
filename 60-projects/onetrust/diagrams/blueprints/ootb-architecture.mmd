@@ -1,0 +1,18 @@
+flowchart TB
+    subgraph SN["<b>ServiceNow&nbsp;CSDM</b>&nbsp;—&nbsp;Master&nbsp;for&nbsp;Applications&nbsp;+&nbsp;Incidents"]
+        direction TB
+        BA["<b>cmdb_ci_business_app</b>"]
+        IO["<b>cmdb_ci_information_object</b><br>• name<br>• category<br>• data_classification (CSPP-aligned, OOTB choice)<br>• description"]
+        INC["<b>incident</b> (OOTB)<br>Business Rule routes privacy INCs to OT<br>Receives work notes back from OneTrust"]
+        BA -->|"Uses :: Used by<br>(cmdb_rel_ci, OOTB)"| IO
+    end
+
+    subgraph OT["<b>OneTrust</b>&nbsp;—&nbsp;Master&nbsp;for&nbsp;Privacy&nbsp;Metadata"]
+        direction TB
+        AS["<b>Assets</b> (OneTrust object)<br>Sourced from <b>cmdb_ci_business_app</b><br>(read-only on OT side)<br>+ privacy enrichment:<br>• Data Elements (PII, PCI, PHI)<br>• Data Subject Types<br>• Legal Entities<br>• Processing Activities<br>• Vendors + DPAs<br>• DPIA results<br>• Art 30 RoPA"]
+        NCSDM["<b>Non-CSDM assets</b> (created locally):<br>• Physical Cabinets<br>• Promotional Web Sites<br>• Seasonal Websites"]
+    end
+
+    SN -->|"<b>Part 1</b>: Asset Sync<br>(initial: Wizard;<br>ongoing: SN REST Table API)"| OT
+    SN <-->|"<b>Part 2</b>: Incident Mgmt<br>(BR → OT REST;<br>OT workflow → SN REST)"| OT
+    OT -->|"<b>Part 3</b>: Classification Pushback<br>(IO + Uses relationship<br>via SN REST Table API)"| SN

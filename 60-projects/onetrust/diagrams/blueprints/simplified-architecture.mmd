@@ -1,0 +1,14 @@
+flowchart TB
+    subgraph SN["<b>ServiceNow&nbsp;CSDM</b>&nbsp;—&nbsp;Master&nbsp;for&nbsp;Applications"]
+        direction TB
+        BA["<b>cmdb_ci_business_app</b><br>• name<br>• life_cycle_stage<br>• data_classification ← OneTrust PATCHes this<br>(OOTB choice — CSPP-aligned, see §8.3)"]
+    end
+
+    subgraph OT["<b>OneTrust</b>&nbsp;—&nbsp;Master&nbsp;for&nbsp;Privacy&nbsp;Metadata"]
+        direction TB
+        AS["<b>Assets</b> (OneTrust object)<br>Sourced from <b>cmdb_ci_business_app</b><br>(read-only on OT side — see §11.1.1 for the 19 fields)"]
+        NCSDM["<b>Non-CSDM assets</b> (created locally):<br>• Physical Cabinets<br>• Promotional Web Sites<br>• Seasonal Websites"]
+    end
+
+    SN -->|"<b>Part 1</b>: Asset Sync<br>(initial: Wizard;<br>ongoing: SN REST Table API)"| OT
+    OT -->|"<b>Part 2</b>: Classification Pushback<br>(REST PATCH on<br>data_classification)"| SN

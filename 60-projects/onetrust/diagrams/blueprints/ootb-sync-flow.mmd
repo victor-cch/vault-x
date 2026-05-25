@@ -1,0 +1,33 @@
+sequenceDiagram
+    participant SN as ServiceNow
+    participant OT as OneTrust
+
+    Note over SN,OT: Setup (one-time)
+    OT->>OT: Configure Asset Discovery Wizard<br>(connection, source tables, mapping, schedule)
+    OT->>SN: Initial bulk pull: GET cmdb_ci_business_app
+    SN-->>OT: Business Applications (19 fields)
+    OT->>OT: Create Assets (read-only application fields)
+
+    Note over SN,OT: Part 1 — Ongoing Asset Sync (daily, REST)
+    OT->>SN: Scheduled GET cmdb_ci_business_app (changes since last run)
+    SN-->>OT: New / updated Business Applications
+    OT->>OT: Update Assets
+
+    Note over SN,OT: Privacy team works in OneTrust
+    OT->>OT: Link Data Elements to Assets
+    OT->>OT: Classify data (CSPP-aligned)
+    OT->>OT: Run privacy assessments (1-2x/year)
+    OT->>OT: Link Vendors, Legal Entities
+    OT->>OT: Art 30 RoPA auto-generated
+
+    Note over SN,OT: Part 3 — Classification Pushback (event-driven or daily)
+    OT->>SN: REST: create / update cmdb_ci_information_object<br>(coalesce by name + category — data_classification CSPP-aligned)
+    OT->>SN: REST: create cmdb_rel_ci (Uses ↔ Used by)<br>Business App → Information Object<br>(unique on parent + child + type)
+    Note right of SN: OOTB CSDM v5 pattern
+
+    Note over SN,OT: Part 2 — Incident Management (reactive)
+    SN->>OT: Business Rule on incident insert → OneTrust REST API
+    OT->>OT: Privacy team assesses incident
+    OT->>OT: Breach notification, regulatory steps
+    OT->>SN: REST: add work notes to original incident
+    OT->>SN: REST: update / close incident
