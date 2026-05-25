@@ -1,4 +1,11 @@
+---
+status: Approved
+intent: Normative
+---
+
 # CSDM v5 Relationship Chain — The Reference
+
+![Status: Approved](https://img.shields.io/badge/status-Approved-10B981) ![Intent: Normative](https://img.shields.io/badge/intent-Normative-EF4444)
 
 The chain that everything else depends on. Get the relationship **types** and **directions** wrong and queries return zero results, incidents route to the wrong group, and BIA chains break silently.
 
