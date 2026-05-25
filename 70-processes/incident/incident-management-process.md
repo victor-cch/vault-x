@@ -91,7 +91,7 @@ The incident process depends on these relationships being correctly populated in
 
 ### Terminology vs v3 (2023)
 
-CSDM v5 renames "Application Service" → **Service Instance** (`cmdb_ci_service_auto` class is unchanged — name change only). v5 also introduces the **Technology Management Service (TMS)** layer between Service Instance and TSO; v3 did not represent TMS. The canonical v5 picture is **Figure 16 — Service Operate** in the CSDM 5 white paper (see [10-csdm/source/csdm-5-white-paper.pdf](../../10-csdm/source/csdm-5-white-paper.pdf)).
+CSDM v5 renames "Application Service" → **Service Instance** (`cmdb_ci_service_auto` class is unchanged — name change only). v5 also introduces the **Technology Management Service (TMS)** layer between Service Instance and TSO; v3 did not represent TMS. The canonical v5 picture is **Figure 16 — CSDM 5 Configuration Item relationships** (page 49) in the CSDM 5 white paper (see [10-csdm/source/csdm-5-white-paper.pdf](../../10-csdm/source/csdm-5-white-paper.pdf)).
 
 ---
 
