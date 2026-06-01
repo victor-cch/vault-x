@@ -133,7 +133,7 @@ If your data shows otherwise, the relationships were inverted at creation time.
 |---|---|---|---|
 | BSO → SI | `Depends on :: Used by` | 870 | ✅ Run maturity |
 | TSO → SI | `Contains :: Contained by` | 395 | ✅ Walk maturity, growing |
-| TSO → TSO | `Depends on :: Used by` (L2→L3→L4) | 647 | ⚠️ **CCH-specific pattern, not in CSDM 5 canon** — see "Non-canonical CCH patterns" below; full detail to move to `20-cch/csdm-evidence/` in Phase 3 |
+| TSO → TSO | `Depends on :: Used by` (L2→L3→L4) | 647 | ⚠️ **CCH-specific pattern, not in CSDM 5 canon** — see "Non-canonical CCH patterns" below; full detail to move to `20-servicenow-cch/csdm-evidence/` in Phase 3 |
 | TSO → DCG | `Contains :: Contained by` | 7 | ❌ CI-first path largely untapped |
 | Calculated App Service → PG | `Contains :: Contained by` | 456 | ✅ Dynatrace discovery output |
 
@@ -153,7 +153,7 @@ The most common chain failures and what they break:
 
 ## Non-canonical CCH patterns
 
-These appear in CCH's `cmdb_rel_ci` but are **not prescribed by CSDM 5**. They are pragmatic implementation choices, not framework deviations to be defended as if canonical. Full detail (record counts, dated observations, rationale) moves to `20-cch/csdm-evidence/` in Phase 3 of the migration.
+These appear in CCH's `cmdb_rel_ci` but are **not prescribed by CSDM 5**. They are pragmatic implementation choices, not framework deviations to be defended as if canonical. Full detail (record counts, dated observations, rationale) moves to `20-servicenow-cch/csdm-evidence/` in Phase 3 of the migration.
 
 ### TSO → TSO chain via `Depends on :: Used by` (L2 → L3 → L4)
 

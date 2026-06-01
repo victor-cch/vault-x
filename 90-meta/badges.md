@@ -75,9 +75,9 @@ intent: Normative
 | Pillar | Typical default |
 |---|---|
 | `10-csdm/` — canonical material | Status: `Approved` once verified against the CSDM 5 White Paper; `Draft` while being written. Intent: `Normative` (vendor canon) or `Conceptual` (synthesis MOCs). |
-| `20-cch/` — CCH current state | Intent: `Informational` (state snapshot) or `Analytical` (gaps, observations). |
+| `20-servicenow-cch/` — CCH current state | Intent: `Informational` (state snapshot) or `Analytical` (gaps, observations). |
 | `30-dynatrace-ref/` | Same shape as 10-csdm. Intent: `Normative` (vendor reference). |
-| `40-dynatrace-cch/` | Same shape as 20-cch. Intent: `Informational` / `Analytical`. |
+| `40-dynatrace-cch/` | Same shape as 20-servicenow-cch. Intent: `Informational` / `Analytical`. |
 | `50-mappings/` | Intent: `Conceptual` (the web) for mapping notes; `Normative` for decisions (ADR-style). |
 | `60-projects/` | Status varies by deliverable; Intent often `Procedural` (HLDs) or `Conceptual`. |
 | `70-processes/` | Process designs: `Normative` once approved; `Conceptual` while being designed. |
@@ -107,7 +107,7 @@ WHERE status = "Approved" AND intent = "Normative"
 ````markdown
 ```dataview
 LIST
-FROM "20-cch"
+FROM "20-servicenow-cch"
 WHERE intent = "Analytical" AND status != "Approved"
 ```
 ````

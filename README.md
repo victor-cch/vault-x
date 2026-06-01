@@ -42,7 +42,8 @@ Obsidian doesn't natively render `.xlsx`. Two practical approaches:
 ```
 00-inbox/              ← Capture point: PDFs, screenshots, half-formed thoughts
 10-csdm/               ← The canon: CSDM v5 framework, classes, glossary
-20-cch/                ← CCH current-state reality
+15-servicenow-ref/     ← ServiceNow platform fundamentals (sys_id, GlideRecord, …)
+20-servicenow-cch/     ← CCH current-state reality (the deployed SN instance)
 30-dynatrace-ref/      ← Dynatrace integration patterns and DQL reference
 40-dynatrace-cch/      ← CCH-specific deployed Dynatrace state
 50-mappings/           ← The web: how the pillars connect
