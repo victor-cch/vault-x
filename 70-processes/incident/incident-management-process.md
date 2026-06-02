@@ -44,12 +44,12 @@ When escalation from BSO to TSO is needed, create a new incident against the TSO
 
 The Parent/Child model is referenced in ServiceNow's leading practice guide (scenario 3, page 9: *"Child incident can be raised for the Technical Service Offering"*) and aligns with the CSDM v5 Consumer/Provider separation. However, the following platform behaviours should be verified before committing to this approach:
 
-| Question | What we assume | Needs confirmation |
-|---|---|---|
-| Does OOTB have an "Awaiting Parent" hold reason? | Yes — listed in OOTB hold reasons | Verify in instance |
-| Does Parent resolution cascade state to Children? | Yes — via OOTB Business Rule | Verify if this is OOTB or requires configuration |
-| How does an agent create the TSO Parent from a BSO incident? | UI Action or manual creation + link | Verify if OOTB provides a mechanism or if a UI Action is needed |
-| Does `parent_incident` drive any OOTB state synchronisation? | Partial — some OOTB, some may need Business Rules | Verify scope of OOTB behaviour |
+| # | Question | What we assume | How to verify in the instance |
+|--:|---|---|---|
+| 1 | Does OOTB have an "Awaiting Parent" hold reason? | Yes — listed in OOTB hold reasons | Navigate to `sys_choice.list?sysparm_query=name=incident^element=hold_reason`. Look for a choice whose label contains "Parent". If absent, either (a) reuse an existing hold reason (e.g. "Awaiting Problem") or (b) add a custom choice — the latter is one-line config, not a customisation. |
+| 2 | Does Parent resolution cascade state to Children? | Yes — via OOTB Business Rule | Navigate to `sys_script.list?sysparm_query=collection=incident^active=true`. Filter by Name containing "parent" or by Script containing `parent_incident`. Look for BRs named like "Parent Incident State Change", "Cascade close to children". If absent or partial, document which states cascade and which don't. |
+| 3 | How does an agent create the TSO Parent from a BSO incident? | UI Action or manual creation + link | Navigate to `sys_ui_action.list?sysparm_query=table=incident^active=true`. Look for actions named "Create Parent Incident", "Promote to Parent", or similar. Also check the incident form's Related Links / Related Lists for a "Children" related list and a "Create new" entry there. If neither exists, an Agent Workspace UI Action is the minimal addition (≤15 lines of script). |
+| 4 | Does `parent_incident` drive any OOTB state synchronisation? | Partial — some OOTB, some may need Business Rules | Combine the results of #2 above with: (a) `sys_script.list?sysparm_query=collection=incident^scriptLIKEparent_incident` to catch all BRs referencing the field, (b) `sys_hub_flow.list?sysparm_query=table_name=incident` for Flow Designer flows, and (c) `sys_dictionary.list?sysparm_query=name=incident^element=parent_incident` to check the field's dependent rules / reference qualifier. Document the union as the actual OOTB behaviour scope. |
 
 Until these are verified, Approach 2 should be treated as the **target direction** based on CSDM v5 best practice, not as a confirmed OOTB capability. The process described in this document assumes Approach 2 works as expected — if verification reveals gaps, those gaps should be addressed with minimal, targeted configuration rather than a full Script Include.
 
