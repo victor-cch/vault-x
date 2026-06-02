@@ -1,11 +1,11 @@
 ---
 status: Approved
-intent: Normative
+intent: Conceptual
 ---
 
 # `sys_id` — the universal record identifier
 
-![Status: Approved](https://img.shields.io/badge/status-Approved-10B981) ![Intent: Normative](https://img.shields.io/badge/intent-Normative-EF4444)
+![Status: Approved](https://img.shields.io/badge/status-Approved-10B981) ![Intent: Conceptual](https://img.shields.io/badge/intent-Conceptual-8B5CF6)
 
 **`sys_id` is the primary key of every record in every table in ServiceNow** — not just CMDB. Every user, every incident, every business rule, every system property, every catalog item, every table definition itself has one.
 
@@ -89,9 +89,7 @@ In regulated or contractual contexts (most e-bonds are one or the other), being 
 
 ## Related concepts
 
-- [[glide-record]] — the server-side API for reading and writing records via their sys_id (TBD)
-- [[reference-fields]] — how reference fields store and resolve sys_ids (TBD)
-- [[update-sets]] — sys_id preservation across instances (TBD)
+- [[glide-record]] — the server-side API for reading and writing records via their sys_id
 
 ## When in doubt
 

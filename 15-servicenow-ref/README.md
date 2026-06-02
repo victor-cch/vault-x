@@ -16,10 +16,11 @@ Each note is short, definitive, and *normative* (chiselled in stone — not inve
 ### Current notes
 
 - [[sys_id]] — the universal primary key for every record on the platform
+- [[sys_object_source]] — the OOTB cross-source CI identifier table (Discovery, SGC, e-bonds)
+- [[glide-record]] — the server-side record API *(Draft — to be expanded)*
 
 ### Candidate notes (added as the need surfaces)
 
-- `glide-record.md` — querying and writing records server-side
 - `business-rules.md` — execution order, when/onBefore/onAfter, before/after/async
 - `acl-evaluation.md` — read/write/create access rules and how they interact with queries
 - `scoped-applications.md` — Global vs scoped, cross-scope access, the `x_<vendor>_<app>` prefix convention
