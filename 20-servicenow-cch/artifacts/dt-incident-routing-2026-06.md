@@ -310,7 +310,7 @@ This rule writes to the Affected CIs related list (`task_ci`), **not** to the pr
 
 ### 6.6 The post-transform populators
 
-The three fields the transform map does **not** write — `service_offering`, `business_service`, and `assignment_group` — are populated by **three Global-scope business rules** on the `incident` table. The fourth field, `cmdb_ci`, is populated **manually by operators** during triage. Full per-rule analysis lives in [`business-rules-on-incident.md`](business-rules-on-incident.md).
+The three CSDM fields the transform map does **not** write — `service_offering`, `business_service`, and `assignment_group` — are populated by **three Global-scope business rules** on the `incident` table. A **fourth Global-scope BR** runs ahead of them to pre-populate the escalation routing inputs (`u_level`, `u_cchavailablelevels`) that Populator 3 reads. The remaining `cmdb_ci` field is populated **manually by operators** during triage. Full per-rule analysis lives in [`business-rules-on-incident.md`](business-rules-on-incident.md).
 
 #### Populator 1 — `Populate Service Offering` (Global, since 2024-07-30)
 
@@ -334,6 +334,33 @@ while (grMapping.next()) {
 #### Populator 2 — `CCH-Map Inc Category to offering` (Global, since 2025-03-10)
 
 A guarded refinement layer over Populator 1. Acts only when `current.service_offering` is empty AND `current.u_item` is set. Same query, first-match-wins. Effectively dead code in practice: Populator 1 has no guard and overwrites whatever Populator 2 sets.
+
+#### Routing-input pre-populator — `INC - Populate CCH Available Levels` (Global)
+
+Runs before-insert on every incident. Sets two CCH-custom fields that Populator 3 then reads:
+
+```javascript
+function onBefore(current, previous) {
+    var country = new locationInfo().getCountryByLocation(current.location);
+
+    // Count how many escalation levels exist for this (u_item × country)
+    var intResult = 1; // default
+    var gr = new GlideRecord('u_escalation_groups');
+    gr.addQuery('u_itemid', current.u_item);
+    gr.addQuery('u_core_country', country);
+    gr.query();
+    if (gr.next()) intResult = gr.getRowCount();
+    current.u_cchavailablelevels = intResult;
+
+    // DPE, Set def level to Level1
+    current.u_level = "Level1";
+}
+```
+
+- Computes `u_cchavailablelevels` from the row count in `u_escalation_groups` for the `(u_item × country)` pair.
+- Stamps `current.u_level = "Level1"` (no space) unconditionally on every insert — author comment attributes the line to `daniel.penchev`.
+- This is the answer to "what sets `u_level` at insert?" — there is no UI Policy, Client Script, or dictionary default; just this BR. DT-induced incidents (which bypass UI) and operator-created incidents alike all flow through it.
+- Format matters: `"Level1"` (no space) is the value that `u_escalation_groups.u_escalation_level` is keyed on, so Populator 3's downstream lookup against `u_escalation_groups` always finds a match for fresh incidents.
 
 #### Populator 3 — `INC - Fill Assignment group on save` (Global, since 2015-05-14)
 
@@ -368,7 +395,7 @@ function onBefore(current, previous) {
 - Side effect: writes `current.u_comment_from_customer = "Assigned to ATOS by CCBMS"` when the chosen group's name contains `"ATOS"` AND the caller/opener is from Russia/Russian Federation/Belarus.
 - The L2-admin default fallback explains the 99.8 % `assignment_group` population rate.
 
-#### Populator 4 — `cmdb_ci` is set manually by operators, not by any rule
+#### Manual entry — `cmdb_ci` is set manually by operators, not by any rule
 
 Verified by audit trail (INC1811586):
 
@@ -390,6 +417,8 @@ This explains the data signature in §3:
 |---|---|---|---|
 | `service_offering` | Populator 1 (`Populate Service Offering`) | `u_item → sc_cat_item_subscribe_mtom`, last-match-wins | 99.2 % |
 | `business_service` | Populator 1 (same) | dot-walks `service_offering.parent` | predicted ~99 % |
+| `u_level` | Pre-populator (`INC - Populate CCH Available Levels`) | hardcoded `"Level1"` | 100 % |
+| `u_cchavailablelevels` | Pre-populator (same) | row count from `u_escalation_groups` for `(u_item × country)` | 100 % |
 | `assignment_group` | Populator 3 (`INC - Fill Assignment group on save`) | `u_escalation_groups` table lookup with L2-admin default | 99.8 % |
 | `cmdb_ci` | Manual operator entry | Operator sets when triaging the ticket | 4.9 % (server-class only) |
 | `u_cchresponsible` | Populator 3 (side effect) | derived from `assignment_group.u_cchlevel` | 99.8 % (dominant value: `Caller` = 91 %) |
@@ -621,12 +650,5 @@ That change shifts ~875 FortiGate outage incidents per 3 months (≈5 per workda
 
 ### No path in the transform map sets a primary CI on the incident
 
-The 65 incidents in the dataset that have `cmdb_ci` populated got it by manual operator entry during triage — see §6.6 Populator 4.
+The 65 incidents in the dataset that have `cmdb_ci` populated got it by manual operator entry during triage — see §6.6 Manual entry.
 
----
-
-## 11. Outstanding
-
-| # | Item | Status |
-|--:|---|---|
-| 1 | ~~Identify what sets `current.u_level` at insert.~~ | **Resolved.** Set by the before-insert Business Rule **`INC - Populate CCH Available Levels`** (Global scope, table `incident`). The BR computes `u_cchavailablelevels` from the row count of `u_escalation_groups` for the (`u_item` × `country`) pair, then unconditionally stamps `current.u_level = "Level1"` (no space) as the default escalation level. Author comment on the line: *"DPE, Set def level to Level1"* (`daniel.penchev`). Behaves as a fourth populator alongside the three documented in §6.6 — runs before Rule 3 (`INC - Fill Assignment group on save`), so Rule 3's lookup against `u_escalation_groups` keyed on `u_level = "Level1"` always has a value to work with. |
