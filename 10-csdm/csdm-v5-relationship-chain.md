@@ -73,25 +73,25 @@ CSDM 4 used `Consumes / Consumed by` between Business Application and Service In
 
 From the [CSDM 5 White Paper](source/csdm-5-white-paper.pdf) (Lemm, Koeten — Figure 16 "CSDM 5 Configuration Item relationships", page 48), reconciled with [CSDM Data Model Examples](source/csdm-data-model-examples.pdf) (May 2025, Asset 0003134) where the two agree. Where they disagree, the **White Paper wins** (it is prescriptive; Examples is illustrative and contains CSDM 4 carryover — notably the BA→SI relationship verb, which Examples still labels `Consumes`).
 
-| From (parent) | Relationship | To (child) |
-|---|---|---|
-| Business Capability | Provided by | Business Application |
-| Business Capability | Provided by | Business Service |
-| Business Application | Uses | Information Object |
-| Business Application | uses reference | Business Application *(self-ref)* |
-| Business Application | Contains | SDLC Component |
-| Business Application | **Uses** | Service Instance (Application Service) |
-| SDLC Component | Consumes | Service Instance |
-| Service Instance | Depends on / sends Data to | Service Instance |
-| Service Instance | Depends on | Service Instance |
-| Application | Runs on | Infrastructure CIs |
-| Technology Mgmt Service | uses reference attribute | Technology Mgmt Service Offering (TSO) |
-| **TSO** | **Contains** | **Service Instance** |
-| **TSO** | **Contains** | **Dynamic CI Group** *(also exposed in Service Builder UI as the "Application services I contain" reference field on `service_offering` — same semantic, two surface representations)* |
-| Dynamic CI Group | Uses related list | Infrastructure CIs |
-| Service Portfolio | uses reference attribute | Business Service |
-| Business Service | uses reference attribute | Business Service Offering (BSO) |
-| **BSO** | **Depends on** | **Service Instance** |
+| From (parent)           | Relationship               | To (child)                                                                                                                                                                             |
+| ----------------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Business Capability     | Provided by                | Business Application                                                                                                                                                                   |
+| Business Capability     | Provided by                | Business Service                                                                                                                                                                       |
+| Business Application    | Uses                       | Information Object                                                                                                                                                                     |
+| Business Application    | uses reference             | Business Application *(self-ref)*                                                                                                                                                      |
+| Business Application    | Contains                   | SDLC Component                                                                                                                                                                         |
+| Business Application    | **Uses**                   | Service Instance (Application Service)                                                                                                                                                 |
+| SDLC Component          | Consumes                   | Service Instance                                                                                                                                                                       |
+| Service Instance        | Depends on / sends Data to | Service Instance                                                                                                                                                                       |
+| Service Instance        | Depends on                 | Service Instance                                                                                                                                                                       |
+| Application             | Runs on                    | Infrastructure CIs                                                                                                                                                                     |
+| Technology Mgmt Service | uses reference attribute   | Technology Mgmt Service Offering (TSO)                                                                                                                                                 |
+| **TSO**                 | **Contains**               | **Service Instance**                                                                                                                                                                   |
+| **TSO**                 | **Contains**               | **Dynamic CI Group** *(also exposed in Service Builder UI as the "Application services I contain" reference field on `service_offering` — same semantic, two surface representations)* |
+| Dynamic CI Group        | Uses related list          | Infrastructure CIs                                                                                                                                                                     |
+| Service Portfolio       | uses reference attribute   | Business Service                                                                                                                                                                       |
+| Business Service        | uses reference attribute   | Business Service Offering (BSO)                                                                                                                                                        |
+| **BSO**                 | **Depends on**             | **Service Instance**                                                                                                                                                                   |
 
 > The bolded rows are the **incident-routing chain**. Get these wrong and the incident management process fails.
 

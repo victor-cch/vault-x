@@ -69,10 +69,10 @@
 
 ## Current State
 
-*(original text retained.)*
+*(original text + transaction volume/load figures retained.)*
 
-> 🟩 **PROPOSED ADDITION — volume**
-> Confirmed volume: **~20 tickets/day normally, 100/day at peak.** (Supersedes the original "600–900 tickets/day" figure.)
+> 🟩 **PROPOSED ADDITION — sizing note**
+> The "600–900 tickets/day / 40–60 transactions/hour" figure reflects **ticket arrival**, not **integration transactions**. A bi-directional sync emits several transactions per ticket lifecycle (create + Jira echo-back + each State transition each way + comments + attachments). True IntegrationHub transaction volume is materially higher (estimated 5–10× the ticket count) and is metered. Volume must be re-derived from a per-ticket lifecycle model and sized against peak, not average. See Non-Functional Requirements → Cost Attribution.
 
 ---
 

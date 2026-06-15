@@ -26,7 +26,7 @@ A competent, config-first design that gets the fundamentals right: IntegrationHu
 - **Correlation model** — Jira Issue Key in `correlation_id`, SNOW Number in Jira `customfield_10061` (External Issue ID). Two-way linkage + create-vs-update routing keyed on `correlation_id` gives idempotent *creation*. Good.
 - **Explicit conflict-ownership intent** — Jira owns execution fields, SNOW owns ITSM fields, latest-timestamp for shared free-text. Most integrations skip this entirely; having a stated model is a real strength.
 - **Clear scope fence** — no historical backfill, no SLA/timer sync, RITM-level (not REQ/`sc_task`), only mapped fields. Tight, sensible boundaries.
-- **Load considered** — async webhooks; the author thought about throughput. (Actual volume is modest — **~20/day, 100 at peak** — so headroom is ample; see §4.)
+- **Sized** — 18–20k/month, 600–900/day, 40–60 txn/hr; async webhooks. The author thought about load.
 - **Credential hygiene** — token in the Credentials module, encrypted at rest, alias-bound, rotation owned by XTEL with no code change. Correct pattern.
 
 ---
@@ -62,20 +62,35 @@ This is an **e-bond**, not a one-way feed. Both systems create, both update, bot
 - **Inbound webhook trust is unspecified.** SNOW→Jira auth (token) is covered; Jira→SNOW is not. A Flow Designer webhook trigger URL must be authenticated / verified (shared secret, signature, IP allow-list) or it's an unauthenticated write path into Incident/RITM. Specify inbound verification.
 
 ### Operability
-- **Error handling is a checkbox.** With guarded transitions and mandatory validation, failures still happen. There's no retry/backoff, dead-letter, alerting, or reconciliation design. At ~20/day a 1% failure is only a handful of stuck records/month — so a lightweight (even manual) reconciliation is defensible — but the failure path and its owner still need to be defined.
+- **Error handling is a checkbox.** At 600–900/day with guarded transitions and mandatory validation, failures are routine. There's no retry/backoff, dead-letter, alerting, or reconciliation design. Even 1% failure ≈ 180–200 stuck tickets/month. Define the failure path and who watches it.
 - **Update idempotency under retry.** Field updates are safe to re-apply; **transitions are not** (re-firing "Close Issue" fails). Retry logic must distinguish the two.
 - **Planning & Risk Management = NA.** No rollback, no test strategy beyond "validate via REST", no KPIs/cutover detail. For a go-live integration this section can't stay empty.
 
-### Volume & sizing — modest; ample headroom
+### Volume & sizing — the transaction count is light by ~an order of magnitude
 
-- Confirmed volume is **~20 tickets/day, 100 at peak** (roughly 400–600/month) — supersedes the original "600–900/day" figure.
-- Even at a high per-ticket transaction multiplier (create + echo-back + each state transition + comments + attachments), that is on the order of a few thousand IntegrationHub transactions/month and a few hundred on a peak day.
-- That sits comfortably within IntegrationHub entitlement and Jira Cloud REST rate limits; the original "without exceeding standard API rate limits" claim holds at this scale.
-- **Routine check only**: confirm the IH entitlement and design backoff/retry as standard hygiene (see Error handling above), not as a scaling concern.
+- **They counted tickets, not transactions.** The stated "40–60 bi-directional transactions/hour" ≈ the ticket-arrival rate (40–60/hr × 24h ≈ 600–900/day). But a *bidirectional* sync emits several transactions per ticket lifetime — create + the Jira echo-back + each state transition (each way) + comments + attachments + the suppressed loop round-trips. Realistically **8–20× per ticket**, so true transaction volume is **~5–10× the budgeted figure**.
+- **No peak headroom.** ITSM arrival isn't uniform — Monday mornings, monitoring storms, major incidents run 3–5× average. "Designed for 40–60/hr" has zero burst margin.
+- **It undercuts the HLD's own claim.** The document asserts this volume runs "without exceeding standard API rate limits" — unsupported at the true rate, against Jira Cloud 429 throttling, with **no backoff/retry designed** (§4 Operability).
+- **IntegrationHub is transaction-metered.** At the real per-ticket transaction count, monthly IH consumption could run into the **hundreds of thousands of transactions** — a licensing/quota exposure the HLD never mentions.
+- **Internal inconsistency**: 20,000/month ÷ 30 calendar days = ~667/day, but ÷ ~21 business days = ~950/day — the "600–900/day" figure mixes calendar- and business-day denominators.
+- **Fix**: re-derive transaction volume from a per-ticket lifecycle model; size IH entitlement and Jira rate-limit headroom against *peak*, not average; add backoff/retry/dead-letter accordingly.
 
 ---
 
-## 5. Cross-document reconciliation (with the CCH IM HLD)
+## 5. Reading the volume — a Sherlock note
+
+The numbers don't only fail to reconcile; they describe what's actually flowing through the pipe.
+
+- **600–900 tickets/day for one platform is not development output.** No engineering team genuinely produces ~900 work items/day. So this isn't "work being created" — it's a **support firehose**. The overwhelming majority must be operational: incidents, data fixes, failed jobs, report discrepancies, access and how-to.
+- **The Components list is the tell.** *Jobs & Batches, Data Integration, Performance, Reporting* — the vocabulary of **batch / ETL / data-pipeline operations**. A trade-promotion platform (PromoPlan, TPM, PUD) running promotions across CCH's ~29 markets throws off enormous recurring data/batch *exception* volume.
+- **"Guidance and Training" maps to the Incident table** (work type 10009 → `incident`). So how-to / training questions are logged — and counted — as **incidents**. That's (a) a slice of the volume that isn't breakage at all, and (b) incident-metric pollution that contradicts the CSDM-aligned IM model.
+- **The deduction**: this is neither heroic throughput nor (only) staggering scale. It's the signature of **operational toil + data/batch exceptions + adoption friction** — much of which should be *engineered away* (self-service data fixes, batch auto-remediation) or *deflected* (KB/training), not individually ticketed. The volume is a **symptom of under-automation and an adoption gap**, not a measure of value produced. Even "a DevOps team sending problems to the Moon" wouldn't sustain this — because most of these aren't engineering problems.
+- **The corollary for *this* integration**: if a large share of the 18–20k is low-novelty, repetitive, or training-as-incident, then e-bonding **all** of it (at the 5–10× transaction multiplier) amplifies noise. A quality design **filters what crosses the bond** — only engineering-actionable tickets sync — rather than mirroring the whole firehose both ways. Garbage propagated bidirectionally at scale is garbage twice.
+- **Before sign-off**, treat the volume as a prompt to profile ticket *composition* (genuine defects vs data/batch toil vs training) — both to size correctly and to decide what actually deserves to be synced.
+
+---
+
+## 6. Cross-document reconciliation (with the CCH IM HLD)
 
 This integration must sit *under* the IM process, not beside it. Conflicts to resolve with `blueprints/incident-management/hld-sn-incident-management.md`:
 
@@ -88,7 +103,7 @@ This integration must sit *under* the IM process, not beside it. Conflicts to re
 
 ---
 
-## 6. Open questions for the author / XTEL
+## 7. Open questions for the author / XTEL
 
 1. Where do the four mandatory Jira fields (Division, Components, Environment, Hypercare) come from on a SNOW-originated create?
 2. What is the concrete sync-loop suppression mechanism?
@@ -102,6 +117,6 @@ This integration must sit *under* the IM process, not beside it. Conflicts to re
 
 ---
 
-## 7. Recommendation
+## 8. Recommendation
 
-**Endorse the architecture; do not sign off for go-live yet.** The Spoke-based, correlation-keyed, conflict-aware approach is the right shape. Gate approval on: (a) closing the four §3 blockers, (b) a written loop-prevention + error-handling + inbound-auth design, (c) reconciliation with the IM HLD on priority, states, assignment, and the SLA-governance point, and (d) a sync-eligibility filter so only engineering-actionable tickets cross the bond — on data-quality grounds (e.g. training-as-incident metric pollution), not volume. Most of this is specification work on top of a sound skeleton, not redesign.
+**Endorse the architecture; do not sign off for go-live yet.** The Spoke-based, correlation-keyed, conflict-aware approach is the right shape. Gate approval on: (a) closing the four §3 blockers, (b) a written loop-prevention + error-handling + inbound-auth design, (c) reconciliation with the IM HLD on priority, states, assignment, and the SLA-governance point, and (d) re-sizing transaction volume from a per-ticket model **plus** a sync-eligibility filter so only engineering-actionable tickets cross the bond (not the training/data-toil firehose — §5). Most of this is specification work on top of a sound skeleton, not redesign.

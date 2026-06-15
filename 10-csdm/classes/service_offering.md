@@ -10,10 +10,10 @@ The **stratified offering** of a parent Service — capability tiers, availabili
 
 **One table, two classifications:**
 
-| Classification | Parent Service | Acronym | Role |
-|---|---|---|---|
-| Business Service | [cmdb_ci_service_business](cmdb_ci_service_business.md) | **BSO** | Consumer view — what the business user sees |
-| Technical Service | [cmdb_ci_service_technical](cmdb_ci_service_technical.md) | **TSO** | Provider view — IT building blocks |
+| Classification    | Parent Service                                            | Acronym | Role                                        |
+| ----------------- | --------------------------------------------------------- | ------- | ------------------------------------------- |
+| Business Service  | [cmdb_ci_service_business](cmdb_ci_service_business.md)   | **BSO** | Consumer view — what the business user sees |
+| Technical Service | [cmdb_ci_service_technical](cmdb_ci_service_technical.md) | **TSO** | Provider view — IT building blocks          |
 
 This is critical: **BSO and TSO live on the same physical table**. The `service_classification` field is the discriminator. Queries that don't filter by classification return both.
 
