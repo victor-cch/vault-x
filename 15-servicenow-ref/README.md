@@ -17,6 +17,7 @@ Each note is short, definitive, and *normative* (chiselled in stone — not inve
 
 - [[sys_id]] — the universal primary key for every record on the platform
 - [[sys_object_source]] — the OOTB cross-source CI identifier table (Discovery, SGC, e-bonds)
+- [[correlation_id]] — the cross-instance identifier for transactional records (INC/REQ/CHG e-bonds: NTT, Orange, Jira)
 - [[glide-record]] — the server-side record API *(Draft — to be expanded)*
 - [[tables/README|tables — MOC]] — index of ServiceNow tables encountered in real work; the per-table notes under `tables/` get created on demand as each table surfaces
 
