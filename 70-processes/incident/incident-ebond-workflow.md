@@ -1,7 +1,7 @@
 # Service Provider ↔ CCH E-Bond — Incident Management Walkthrough
 
 **Version**: 0.2
-**Status**: Draft — for review
+**Status**: Draft — not accepted
 **v0.2**: elevated the CSDM/escalation boundary into its own section — distinguishes CSDM as an accountability *label* (allowed) from CSDM as operational escalation *routing* (anti-pattern). Made self-contained: removed upward HLD cross-references (the HLDs reference this document, not the reverse).
 **Scope**: a concise pattern for any e-bonded **Service Provider (SP)** that resolves incidents on CCH's behalf (e.g. NTT, Orange). "**Service Provider (resolver)**" = the SP that does the work; **CCH** = the customer.
 
@@ -24,11 +24,11 @@ The CCH side of an e-bonded incident is **one** coordination role: follow the mi
 
 ## What flips vs. what stays local
 
-| Crosses the bond (flips back & forth) | Stays local to each instance |
-|---|---|
-| **State** (On Hold ↔ In Progress) | **Parent `assignment_group`** (SP both sides — never flips) |
-| **Work notes / comments** (the question, the answer) | **The `incident_task`** (created on CCH side, owned by CCH) |
-| Attachments | **SLAs** (each instance runs its own clock) |
+| Crosses the bond (flips back & forth)                      | Stays local to each instance                                         |
+| ---------------------------------------------------------- | -------------------------------------------------------------------- |
+| **State** (On Hold ↔ In Progress)                   | **Parent `assignment_group`** (SP both sides — never flips) |
+| **Work notes / comments** (the question, the answer) | **The `incident_task`** (created on CCH side, owned by CCH)  |
+| Attachments                                                | **SLAs** (each instance runs its own clock)                    |
 
 So "flipping back and forth" = **state + comments syncing**, *not* the assignment group moving and *not* the task crossing over.
 
@@ -99,16 +99,16 @@ sequenceDiagram
 
 ## Step-by-step
 
-| # | Event | Incident state | Resolution SLA (SP) | Task SLA (CCH) |
-|---|---|---|---|---|
-| 1 | Incident raised & e-bonded; `correlation_id` minted; `assignment_group = SP` | New → In Progress | **running** | — |
-| 2 | SP investigates, needs input from CCH | In Progress | running | — |
-| 3 | SP sets parent **On Hold — Awaiting Info** + work note (the question); state + note mirror to CCH | **On Hold** | **paused** | — |
-| 4 | CCH raises `incident_task` → `assignment_group = CCH` | On Hold | paused | **running** |
-| 5 | CCH works the task (escalates *within CCH* if slow), provides info, **closes task** | On Hold | paused | **stopped** |
-| 6 | Task closure flips parent **off hold**; answer mirrors back to SP | In Progress | **resumes** | — |
-| 7 | SP resolves | Resolved | **stopped** | — |
-| 8 | Closure per e-bond closure rule | Closed | finalised | — |
+| # | Event                                                                                                   | Incident state     | Resolution SLA (SP) | Task SLA (CCH)    |
+| - | ------------------------------------------------------------------------------------------------------- | ------------------ | ------------------- | ----------------- |
+| 1 | Incident raised & e-bonded;`correlation_id` minted; `assignment_group = SP`                         | New → In Progress | **running**   | —                |
+| 2 | SP investigates, needs input from CCH                                                                   | In Progress        | running             | —                |
+| 3 | SP sets parent**On Hold — Awaiting Info** + work note (the question); state + note mirror to CCH | **On Hold**  | **paused**    | —                |
+| 4 | CCH raises`incident_task` → `assignment_group = CCH`                                               | On Hold            | paused              | **running** |
+| 5 | CCH works the task (escalates*within CCH* if slow), provides info, **closes task**              | On Hold            | paused              | **stopped** |
+| 6 | Task closure flips parent**off hold**; answer mirrors back to SP                                  | In Progress        | **resumes**   | —                |
+| 7 | SP resolves                                                                                             | Resolved           | **stopped**   | —                |
+| 8 | Closure per e-bond closure rule                                                                         | Closed             | finalised           | —                |
 
 **If CCH doesn't answer.** On Hold holds the parent and keeps the SP clock paused, but not indefinitely: after an agreed number of unanswered reminders (a **"3-strike" rule**), the SP may close the incident **incomplete**. The `incident_task` SLA is what makes CCH responsiveness measurable and escalatable *within CCH* before that point.
 
@@ -118,15 +118,15 @@ sequenceDiagram
 
 The e-bond is a **boundary integration** — CCH's internal incident process is **unchanged**. The only coupling is **translation at the seam**; lifecycle-state mapping is the primary one.
 
-| Seam touchpoint | Nature |
-|---|---|
-| **Lifecycle / state** (SP ↔ CCH states) | the main one — canonical-lifecycle map |
-| **Priority / Impact-Urgency** (e.g. CCH P0 = SP P1) | value mapping |
-| **Close / resolution codes** | value mapping |
-| **Assignment-group mapping** | SP teams ↔ CCH queues |
-| **Closure authority** | which side may close, and when |
-| **CCH-facing SLA on e-bonded records** | clock + On-Hold pause rules |
-| **Major-incident bridge** | the one place it touches CCH MIM |
+| Seam touchpoint                                           | Nature                                  |
+| --------------------------------------------------------- | --------------------------------------- |
+| **Lifecycle / state** (SP ↔ CCH states)            | the main one — canonical-lifecycle map |
+| **Priority / Impact-Urgency** (e.g. CCH P0 = SP P1) | value mapping                           |
+| **Close / resolution codes**                        | value mapping                           |
+| **Assignment-group mapping**                        | SP teams ↔ CCH queues                  |
+| **Closure authority**                               | which side may close, and when          |
+| **CCH-facing SLA on e-bonded records**              | clock + On-Hold pause rules             |
+| **Major-incident bridge**                           | the one place it touches CCH MIM        |
 
 All translation — none of it reshapes CCH's incident process.
 
@@ -136,14 +136,14 @@ All translation — none of it reshapes CCH's incident process.
 
 Both instances map their local states onto one **canonical lifecycle**; the bond translates at the seam — no free-text states. On Hold is **reason-code aware** so the round-trip stays reversible.
 
-| Canonical state | Meaning across the bond | Clock |
-|---|---|---|
-| **New** | raised, not yet picked up | — |
-| **In Progress** | SP actively resolving | Resolution SLA running |
-| **On Hold — Awaiting Info** | SP waiting on CCH (info-request branch) | paused |
-| **On Hold — Awaiting Vendor / Scheduled** | SP waiting on a third party or a window | paused |
-| **Resolved** | SP has resolved; awaiting closure | stopped |
-| **Closed** | finalised per the closure rule | finalised |
+| Canonical state                                  | Meaning across the bond                 | Clock                  |
+| ------------------------------------------------ | --------------------------------------- | ---------------------- |
+| **New**                                    | raised, not yet picked up               | —                     |
+| **In Progress**                            | SP actively resolving                   | Resolution SLA running |
+| **On Hold — Awaiting Info**               | SP waiting on CCH (info-request branch) | paused                 |
+| **On Hold — Awaiting Vendor / Scheduled** | SP waiting on a third party or a window | paused                 |
+| **Resolved**                               | SP has resolved; awaiting closure       | stopped                |
+| **Closed**                                 | finalised per the closure rule          | finalised              |
 
 Each On-Hold reason maps **one-to-one** both ways — never many-to-one without a reverse rule (see *Danger Zone*).
 
